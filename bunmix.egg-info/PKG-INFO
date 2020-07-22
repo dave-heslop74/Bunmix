@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: bunmix
+Version: 1.0.0
+Summary: The Bunmix package
+Home-page: https://github.com/Bunmix
+Author: D. Heslop
+Author-email: notme@gmail.com
+License: UNKNOWN
+Description: # Welcome to Bunmix
+        Bayesian unmixing of remanence curves
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

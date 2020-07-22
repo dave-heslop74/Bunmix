@@ -225,9 +225,7 @@ def plot_model(X):
     trace = X['trace']
     ounits = X['ounits_widge'].value
     
-    print('Unmixing model is processing')
     _ = br.plot_mixture(x,y,trace,nB,ounits,Mn=Mn)
-    print('Unmixing model is complete')
    
     plt.tight_layout()
      

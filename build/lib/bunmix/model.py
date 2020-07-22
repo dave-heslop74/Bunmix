@@ -202,8 +202,11 @@ def get_model(X):
     nSample = X['nSample_widge'].value
     nTune = X['nTune_widge'].value
     
+    print('Unmixing model is processing. Please wait .....')
     trace, _ = br.unmix(nB,x0,yn,nsample=nSample,tune=nTune)
-    
+    print('Unmixing model is complete')
+
+
     X['nB'] = nB
     X['x0'] = x0
     X['y0'] = y0

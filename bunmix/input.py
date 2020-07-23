@@ -43,8 +43,20 @@ def get_data(X):
 
     
     X = load_data(X)
-    x = np.log10(X['B'])
+    #x = np.log10(X['B'])
+    x = X['B']
     y = X['M']
+
+
+    X['type_widge'] = ipyw.Dropdown(style={'description_width': 'initial'},
+    options=[('Acquisition',0),('AF Demagnetization',1),('Backfield Demagnetization',2)],
+    value=0,
+    description='Measurement type:')
+
+    if (x[-1]>0) & (y[0]>y[-1]): #looks like AF demag data
+        X['type_widge'].value = 1
+    elif (x[-1]<0): #looks like DCD data
+        X['type_widge'].value = 2
     
     X['name_widge'] = ipyw.Text(style={'description_width': 'initial'},
     value='my sample',
@@ -81,14 +93,15 @@ def get_data(X):
     X['save_widge'] = ipyw.Checkbox(value=False, description = 'Save plot') 
 
     # MIN & MAX FIELD widget
-    X['Bmin_widge'] = ipyw.FloatText(value=np.min(10**x),description='Minimum B [mT]',step=1,style=style)    
-    X['Bmax_widge'] = ipyw.FloatText(value=np.max(10**x),description='Maximum B [mT]',step=1,style=style)
+    X['Bmin_widge'] = ipyw.FloatText(value=np.min(np.abs(x)),description='Minimum B [mT]',step=1,style=style)    
+    X['Bmax_widge'] = ipyw.FloatText(value=np.max(np.abs(x)),description='Maximum B [mT]',step=1,style=style)
     
     p = ipyw.interactive(plot_data,
                          x=ipyw.fixed(x),
                          y=ipyw.fixed(y),
                          show = X['show_widge'],
                          name = X['name_widge'],
+                         mtype = X['type_widge'],
                          mass = X['mass_widge'],
                          volume = X['volume_widge'],
                          ounits=X['ounits_widge'],
@@ -106,11 +119,21 @@ def get_data(X):
     
     return X
     
-def plot_data(x,y,show,name,mass,volume,iunits,ounits,Bmin,Bmax,save):
+def plot_data(x,y,show,name,mtype,mass,volume,iunits,ounits,Bmin,Bmax,save):
     
-    idx = (10**x>=Bmin) & (10**x<=Bmax)
-    y0 = y[idx]
-    x0 = x[idx]
+    if mtype==0:
+        x1 = x
+        y1 = y
+    elif mtype==1:
+        x1 = x
+        y1 = -(y-y[0])
+    elif mtype==2:
+        x1 = -x
+        y1 = -(y-y[0])/2
+
+    idx = (x1>=Bmin) & (x1<=Bmax) & (x1>0)
+    y0 = y1[idx]
+    x0 = np.log10(x1[idx])
     
     error = 0
     Cfactor = 1
@@ -381,7 +404,7 @@ def plot_data(x,y,show,name,mass,volume,iunits,ounits,Bmin,Bmax,save):
         fig0, (ax1, ax2) = plt.subplots(1,2,figsize=([13, 4.8]))
         ax1.plot(10**x0,y0*Cfactor,'.k-')
         ax1.set_xscale('log')
-        ax1.set_xlim([np.min(10**x[idx]),np.max(10**x[idx])])
+        ax1.set_xlim([np.min(10**x0),np.max(10**x0)])
         ax1.set_xlabel('B [mT]',fontsize=14)
     
         if ounits==0:
@@ -408,7 +431,7 @@ def plot_data(x,y,show,name,mass,volume,iunits,ounits,Bmin,Bmax,save):
         Dx = x0[:-1]+np.diff(x0)/2
         ax2.plot(10**Dx,Dy,'.k-')
         ax2.set_xscale('log')
-        ax2.set_xlim([np.min(10**x[idx]),np.max(10**x[idx])])
+        ax2.set_xlim([np.min(10**x0),np.max(10**x0)])
         ax2.set_xlabel('B [mT]',fontsize=14)
         
         if ounits==0:

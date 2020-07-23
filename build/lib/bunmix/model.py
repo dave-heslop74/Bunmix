@@ -186,15 +186,26 @@ def get_model(X):
     
     #load data
     X = bi.load_data(X)
-    x = np.log10(X['B'])
-    y = X['M']*X['Cfactor']
+    x = X['B']
+    y = X['M']
+
+    if X['type_widge'].value==0:
+        x1 = x
+        y1 = y
+    elif X['type_widge'].value==1:
+        x1 = x
+        y1 = -(y-y[0])
+    elif X['type_widge'].value==2:
+        x1 = -x
+        y1 = -(y-y[0])/2
     
     #truncate data as required
     Bmin = X['Bmin_widge'].value
     Bmax = X['Bmax_widge'].value
-    idx = (10**x>=Bmin) & (10**x<=Bmax)
-    y0 = y[idx]
-    x0 = x[idx]
+    idx = (x1>=Bmin) & (x1<=Bmax) & (x1>0)
+    y0 = y1[idx]*X['Cfactor']
+    x0 = np.log10(x1[idx])
+    
     Mn = y0[-1]
     yn = y0/Mn
     
